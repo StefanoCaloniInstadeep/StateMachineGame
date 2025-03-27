@@ -4,19 +4,18 @@
 
 void UpdatePhysics(Player& player, const World& world, float delta)
 {
-    const auto& envItems = world.obstacles;
     player.pos.x += player.vel.x * delta;
 
     bool hitObstacle = false;
-    for (auto ei : envItems)
+    for (auto ob : world.obstacles)
     {
-        Vector2& p = player.pos;
-        if (ei.blocking && ei.rect.x <= p.x && ei.rect.x + ei.rect.width >= p.x && ei.rect.y >= p.y
-            && ei.rect.y <= p.y + player.vel.y * delta)
+        Vector2& pos = player.pos;
+        if (ob.blocking && ob.rect.x <= pos.x && ob.rect.x + ob.rect.width >= pos.x && ob.rect.y >= pos.y
+            && ob.rect.y <= pos.y + player.vel.y * delta)
         {
             hitObstacle = true;
             player.vel.y = 0.0f;
-            p.y = ei.rect.y;
+            pos.y = ob.rect.y;
             break;
         }
     }
@@ -25,7 +24,7 @@ void UpdatePhysics(Player& player, const World& world, float delta)
     {
         player.pos.y += player.vel.y * delta;
         player.vel.y += GRAVITY * delta;
-        player.canJump = false;
+        player.OnFalling();
     }
     else
     {

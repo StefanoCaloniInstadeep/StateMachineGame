@@ -12,7 +12,7 @@ public:
     Vector2 vel;
     std::array<float, 2> shape;
 
-    bool canJump;
+    bool isMidAir;
 
     void HandleInput();
 
@@ -21,4 +21,5 @@ public:
     void Jump();
 
     void OnHit();
+    void OnFalling();
 };

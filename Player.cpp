@@ -2,10 +2,11 @@
 
 #include "Constants.h"
 
-std::array<float, 2> NORMAL_SHAPE{40, 40};
-std::array<float, 2> JUMPING_SHAPE{30, 50};
+constexpr float EDGE = SCREEN_HEIGHT * 0.1;
+std::array<float, 2> NORMAL_SHAPE{EDGE, EDGE};
+std::array<float, 2> JUMPING_SHAPE{EDGE * 3 / 4, EDGE * 5 / 4};
 
-Player::Player() : pos{SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f}, vel{0, 0}, shape{NORMAL_SHAPE}, canJump{false}
+Player::Player() : pos{SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f}, vel{0, 0}, shape{NORMAL_SHAPE}, isMidAir{false}
 {}
 
 void Player::HandleInput()
@@ -19,16 +20,21 @@ void Player::HandleInput()
     {
         MoveRight();
     }
-    if ((IsKeyDown(KEY_UP)) && canJump)
+    if ((IsKeyDown(KEY_UP)) && !isMidAir)
     {
         Jump();
     }
 }
 
+void Player::OnFalling()
+{
+    isMidAir = true;
+}
+
 void Player::OnHit()
 {
     shape = NORMAL_SHAPE;
-    canJump = true;
+    isMidAir = false;
 }
 
 void Player::MoveLeft()
@@ -45,5 +51,5 @@ void Player::Jump()
 {
     shape = JUMPING_SHAPE;
     vel.y = PLAYER_JUMP_SPD;
-    canJump = false;
+    isMidAir = true;
 }

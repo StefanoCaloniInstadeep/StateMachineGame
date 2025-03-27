@@ -16,8 +16,7 @@ Player::Player()
     : pos{SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f},
       vel{0, 0},
       shape{NORMAL_SHAPE},
-      isMidAir{false},
-      isDucking(false)
+      state{State::STANDING}
 {}
 
 void Player::HandleInput()
@@ -31,74 +30,81 @@ void Player::HandleInput()
     {
         MoveRight();
     }
-    if ((IsKeyPressed(KEY_UP)) && !isMidAir && !isDucking)
+    if ((IsKeyPressed(KEY_UP)))
     {
-        Jump();
+        switch (state)
+        {
+            case State::STANDING: Jump(); break;
+            case State::FALLING:
+            case State::JUMPING:
+            case State::DUCKING:
+            case State::DIVING:
+        }
     }
     if ((IsKeyDown(KEY_DOWN)))
     {
-        if (!isMidAir)
+        switch (state)
         {
-            Duck();
-        }
-        else
-        {
-            Dive();
+            case State::STANDING: Duck(); break;
+            case State::FALLING:
+            case State::JUMPING: Dive(); break;
+            case State::DUCKING:
+            case State::DIVING:
         }
     }
-    if (IsKeyReleased(KEY_DOWN) && !isMidAir && !isDiving)
+    if (IsKeyReleased(KEY_DOWN))
     {
-        StandUp();
+        switch (state)
+        {
+            case State::STANDING:
+            case State::FALLING:
+            case State::DIVING:
+            case State::JUMPING: break;
+            case State::DUCKING: StandUp(); break;
+        }
     }
 }
 
 void Player::OnFalling()
 {
-    if (isDucking)
+    switch (state)
     {
-        StandUp();
+        case State::FALLING:
+        case State::STANDING:
+        case State::JUMPING: break;
+        case State::DUCKING: StandUp(); break;
+        case State::DIVING: return;
     }
-    isMidAir = true;
+    state = State::FALLING;
 }
 
 void Player::OnHit()
 {
-    std::println("on hit");
-    std::flush(std::cout);
     shape = NORMAL_SHAPE;
-    isMidAir = false;
-    isDiving = false;
+    state = State::STANDING;
 }
 
 void Player::MoveLeft()
 {
-    if (isDiving)
+    switch (state)
     {
-        vel.x = 0;
-    }
-    else if (isDucking)
-    {
-        vel.x -= PLAYER_HOR_SPD_WHILE_DUCKING;
-    }
-    else
-    {
-        vel.x -= PLAYER_HOR_SPD;
+        case State::FALLING:
+        case State::STANDING:
+        case State::JUMPING: vel.x -= PLAYER_HOR_SPD; break;
+        case State::DUCKING: vel.x -= PLAYER_HOR_SPD_WHILE_DUCKING; break;
+        case State::DIVING: vel.x = 0;
     }
 }
 
 void Player::MoveRight()
 {
-    if (isDiving)
+    switch (state)
     {
-        vel.x = 0;
-    }
-    else if (isDucking)
-    {
-        vel.x += PLAYER_HOR_SPD_WHILE_DUCKING;
-    }
-    else
-    {
-        vel.x += PLAYER_HOR_SPD;
+        case State::FALLING:
+        case State::STANDING:
+        case State::JUMPING: vel.x += PLAYER_HOR_SPD; break;
+        case State::DUCKING: vel.x += PLAYER_HOR_SPD_WHILE_DUCKING; break;
+        case State::DIVING: vel.x = 0;
     }
 }
 
@@ -106,24 +112,24 @@ void Player::Jump()
 {
     shape = JUMPING_SHAPE;
     vel.y = PLAYER_JUMP_SPD;
-    isMidAir = true;
+    state = State::JUMPING;
 }
 
 void Player::Dive()
 {
     shape = DIVING_SHAPE;
     vel.y = PLAYER_DIVING_SPD;
-    isDiving = true;
+    state = State::DIVING;
 }
 
 void Player::Duck()
 {
     shape = DUCKING_SHAPE;
-    isDucking = true;
+    state = State::DUCKING;
 }
 
 void Player::StandUp()
 {
     shape = NORMAL_SHAPE;
-    isDucking = false;
+    state = State::STANDING;
 }

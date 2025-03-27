@@ -3,6 +3,15 @@
 #include <array>
 #include <raylib.h>
 
+enum class State
+{
+    STANDING,
+    FALLING,
+    JUMPING,
+    DUCKING,
+    DIVING,
+};
+
 class Player
 {
 public:
@@ -12,9 +21,7 @@ public:
     Vector2 vel;
     std::array<float, 2> shape;
 
-    bool isMidAir;
-    bool isDucking;
-    bool isDiving;
+    State state;
 
     void HandleInput();
 

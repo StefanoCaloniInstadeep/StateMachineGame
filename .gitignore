@@ -1,0 +1,7 @@
+.cache
+build
+
+CMakeUserPresets.json
+compile_commands.json
+session.vim          
+state.json           

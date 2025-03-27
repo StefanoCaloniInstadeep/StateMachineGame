@@ -30,7 +30,7 @@ void Player::HandleInput()
     {
         MoveRight();
     }
-    if ((IsKeyPressed(KEY_UP)) && !isMidAir)
+    if ((IsKeyPressed(KEY_UP)) && !isMidAir && !isDucking)
     {
         Jump();
     }

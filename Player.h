@@ -13,12 +13,15 @@ public:
     std::array<float, 2> shape;
 
     bool isMidAir;
+    bool isDucking;
 
     void HandleInput();
 
     void MoveLeft();
     void MoveRight();
     void Jump();
+    void Duck();
+    void StandUp();
 
     void OnHit();
     void OnFalling();

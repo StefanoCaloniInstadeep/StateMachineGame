@@ -14,12 +14,14 @@ public:
 
     bool isMidAir;
     bool isDucking;
+    bool isDiving;
 
     void HandleInput();
 
     void MoveLeft();
     void MoveRight();
     void Jump();
+    void Dive();
     void Duck();
     void StandUp();
 

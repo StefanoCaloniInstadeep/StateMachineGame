@@ -10,6 +10,7 @@ constexpr float EDGE = SCREEN_HEIGHT * 0.1;
 std::array<float, 2> NORMAL_SHAPE{EDGE, EDGE};
 std::array<float, 2> JUMPING_SHAPE{EDGE * 3 / 4, EDGE * 5 / 4};
 std::array<float, 2> DUCKING_SHAPE{EDGE * 5 / 4, EDGE * 3 / 4};
+std::array<float, 2> DIVING_SHAPE{EDGE * 3 / 4, EDGE * 3 / 4};
 
 Player::Player()
     : pos{SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f},
@@ -34,11 +35,18 @@ void Player::HandleInput()
     {
         Jump();
     }
-    if ((IsKeyDown(KEY_DOWN)) && !isMidAir)
+    if ((IsKeyDown(KEY_DOWN)))
     {
-        Duck();
+        if (!isMidAir)
+        {
+            Duck();
+        }
+        else
+        {
+            Dive();
+        }
     }
-    if (IsKeyReleased(KEY_DOWN) && !isMidAir)
+    if (IsKeyReleased(KEY_DOWN) && !isMidAir && !isDiving)
     {
         StandUp();
     }
@@ -59,11 +67,16 @@ void Player::OnHit()
     std::flush(std::cout);
     shape = NORMAL_SHAPE;
     isMidAir = false;
+    isDiving = false;
 }
 
 void Player::MoveLeft()
 {
-    if (isDucking)
+    if (isDiving)
+    {
+        vel.x = 0;
+    }
+    else if (isDucking)
     {
         vel.x -= PLAYER_HOR_SPD_WHILE_DUCKING;
     }
@@ -75,7 +88,11 @@ void Player::MoveLeft()
 
 void Player::MoveRight()
 {
-    if (isDucking)
+    if (isDiving)
+    {
+        vel.x = 0;
+    }
+    else if (isDucking)
     {
         vel.x += PLAYER_HOR_SPD_WHILE_DUCKING;
     }
@@ -90,6 +107,13 @@ void Player::Jump()
     shape = JUMPING_SHAPE;
     vel.y = PLAYER_JUMP_SPD;
     isMidAir = true;
+}
+
+void Player::Dive()
+{
+    shape = DIVING_SHAPE;
+    vel.y = PLAYER_DIVING_SPD;
+    isDiving = true;
 }
 
 void Player::Duck()

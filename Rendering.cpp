@@ -30,8 +30,9 @@ void Draw(const Player& player, const World& world)
     DrawText("Controls:", 20, 20, 10, BLACK);
     DrawText("- Right/Left to move", 40, 40, 10, DARKGRAY);
     DrawText("- Up to jump", 40, 60, 10, DARKGRAY);
-    DrawText("- R to reset zoom", 40, 80, 10, DARKGRAY);
-    DrawText("- Q to quit", 40, 100, 10, DARKGRAY);
+    DrawText("- Down to duck", 40, 80, 10, DARKGRAY);
+    DrawText("- R to reset zoom", 40, 100, 10, DARKGRAY);
+    DrawText("- Q to quit", 40, 120, 10, DARKGRAY);
 
     EndDrawing();
 }

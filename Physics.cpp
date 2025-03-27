@@ -15,7 +15,11 @@ void UpdatePhysics(Player& player, const World& world, float delta)
         {
             hitObstacle = true;
             player.vel.y = 0.0f;
-            pos.y = ob.rect.y;
+            if (pos.y != ob.rect.y)
+            {
+                pos.y = ob.rect.y;
+                player.OnHit();
+            }
             break;
         }
     }
@@ -25,9 +29,5 @@ void UpdatePhysics(Player& player, const World& world, float delta)
         player.pos.y += player.vel.y * delta;
         player.vel.y += GRAVITY * delta;
         player.OnFalling();
-    }
-    else
-    {
-        player.OnHit();
     }
 }

@@ -18,7 +18,7 @@ void UpdatePhysics(Player& player, const World& world, float delta)
             if (pos.y != ob.rect.y)
             {
                 pos.y = ob.rect.y;
-                player.OnHit();
+                player.state->OnHit(player);
             }
             break;
         }
@@ -28,6 +28,7 @@ void UpdatePhysics(Player& player, const World& world, float delta)
     {
         player.pos.y += player.vel.y * delta;
         player.vel.y += GRAVITY * delta;
-        player.OnFalling();
+        player.state->OnFalling(player);
     }
+    player.vel.x = 0;
 }

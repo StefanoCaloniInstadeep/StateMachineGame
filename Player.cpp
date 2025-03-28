@@ -1,8 +1,6 @@
 #include "Player.h"
 
 #include "Constants.h"
-#include <iostream>
-#include <ostream>
 #include <print>
 #include <raylib.h>
 
@@ -12,124 +10,127 @@ std::array<float, 2> JUMPING_SHAPE{EDGE * 3 / 4, EDGE * 5 / 4};
 std::array<float, 2> DUCKING_SHAPE{EDGE * 5 / 4, EDGE * 3 / 4};
 std::array<float, 2> DIVING_SHAPE{EDGE * 3 / 4, EDGE * 3 / 4};
 
-Player::Player()
-    : pos{SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f},
-      vel{0, 0},
-      shape{NORMAL_SHAPE},
-      state{State::STANDING}
+StandingState STANDING{};
+FallingState FALLING{};
+JumpingState JUMPING{};
+DivingState DIVING{};
+DuckingState DUCKING{};
+
+void State::OnLeft(Player& player)
+{
+    player.vel.x -= PLAYER_HOR_SPD;
+}
+
+void State::OnRight(Player& player)
+{
+    player.vel.x += PLAYER_HOR_SPD;
+}
+
+void State::OnUp(Player& player)
+{
+    (void)player;
+}
+
+void State::OnDown(Player& player)
+{
+    (void)player;
+}
+
+void State::OnDownReleased(Player& player)
+{
+    (void)player;
+}
+
+void State::OnHit(Player& player)
+{
+    player.shape = NORMAL_SHAPE;
+    player.state = &STANDING;
+}
+
+void State::OnFalling(Player& player)
+{
+    player.state = &FALLING;
+}
+
+void StandingState::OnUp(Player& player)
+{
+    player.shape = JUMPING_SHAPE;
+    player.vel.y = PLAYER_JUMP_SPD;
+    player.state = &JUMPING;
+}
+
+void StandingState::OnDown(Player& player)
+{
+    player.shape = DUCKING_SHAPE;
+    player.state = &DUCKING;
+}
+
+void JumpingState::OnDown(Player& player)
+{
+    player.shape = DIVING_SHAPE;
+    player.vel.y = PLAYER_DIVING_SPD;
+    player.state = &DIVING;
+}
+
+void JumpingState::OnFalling(Player& player)
+{
+    (void)player;
+}
+
+void DuckingState::OnLeft(Player& player)
+{
+    player.vel.x -= PLAYER_HOR_SPD_WHILE_DUCKING;
+}
+
+void DuckingState::OnRight(Player& player)
+{
+    player.vel.x += PLAYER_HOR_SPD_WHILE_DUCKING;
+}
+
+void DuckingState::OnDownReleased(Player& player)
+{
+    player.shape = NORMAL_SHAPE;
+    player.state = &STANDING;
+}
+
+void DivingState::OnLeft(Player& player)
+{
+    player.vel.x = 0;
+}
+
+void DivingState::OnRight(Player& player)
+{
+    player.vel.x = 0;
+}
+
+void DivingState::OnFalling(Player& player)
+{
+    (void)player;
+}
+
+Player::Player() : pos{SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f}, vel{0, 0}, shape{NORMAL_SHAPE}, state{&STANDING}
 {}
 
 void Player::HandleInput()
 {
-    vel.x = 0;
     if (IsKeyDown(KEY_LEFT))
     {
-        MoveLeft();
+        state->OnLeft(*this);
     }
     if (IsKeyDown(KEY_RIGHT))
     {
-        MoveRight();
+        state->OnRight(*this);
     }
     if ((IsKeyPressed(KEY_UP)))
     {
-        switch (state)
-        {
-            case State::STANDING: Jump(); break;
-            case State::FALLING:
-            case State::JUMPING:
-            case State::DUCKING:
-            case State::DIVING:
-        }
+        state->OnUp(*this);
     }
     if ((IsKeyDown(KEY_DOWN)))
     {
-        switch (state)
-        {
-            case State::STANDING: Duck(); break;
-            case State::FALLING:
-            case State::JUMPING: Dive(); break;
-            case State::DUCKING:
-            case State::DIVING:
-        }
+        state->OnDown(*this);
     }
     if (IsKeyReleased(KEY_DOWN))
     {
-        switch (state)
-        {
-            case State::STANDING:
-            case State::FALLING:
-            case State::DIVING:
-            case State::JUMPING: break;
-            case State::DUCKING: StandUp(); break;
-        }
+        state->OnDownReleased(*this);
     }
-}
-
-void Player::OnFalling()
-{
-    switch (state)
-    {
-        case State::FALLING:
-        case State::STANDING:
-        case State::JUMPING: break;
-        case State::DUCKING: StandUp(); break;
-        case State::DIVING: return;
-    }
-    state = State::FALLING;
-}
-
-void Player::OnHit()
-{
-    shape = NORMAL_SHAPE;
-    state = State::STANDING;
-}
-
-void Player::MoveLeft()
-{
-    switch (state)
-    {
-        case State::FALLING:
-        case State::STANDING:
-        case State::JUMPING: vel.x -= PLAYER_HOR_SPD; break;
-        case State::DUCKING: vel.x -= PLAYER_HOR_SPD_WHILE_DUCKING; break;
-        case State::DIVING: vel.x = 0;
-    }
-}
-
-void Player::MoveRight()
-{
-    switch (state)
-    {
-        case State::FALLING:
-        case State::STANDING:
-        case State::JUMPING: vel.x += PLAYER_HOR_SPD; break;
-        case State::DUCKING: vel.x += PLAYER_HOR_SPD_WHILE_DUCKING; break;
-        case State::DIVING: vel.x = 0;
-    }
-}
-
-void Player::Jump()
-{
-    shape = JUMPING_SHAPE;
-    vel.y = PLAYER_JUMP_SPD;
-    state = State::JUMPING;
-}
-
-void Player::Dive()
-{
-    shape = DIVING_SHAPE;
-    vel.y = PLAYER_DIVING_SPD;
-    state = State::DIVING;
-}
-
-void Player::Duck()
-{
-    shape = DUCKING_SHAPE;
-    state = State::DUCKING;
-}
-
-void Player::StandUp()
-{
-    shape = NORMAL_SHAPE;
-    state = State::STANDING;
 }

@@ -16,31 +16,6 @@ JumpingState JUMPING{};
 DivingState DIVING{};
 DuckingState DUCKING{};
 
-void State::OnLeft(Player& player)
-{
-    player.vel.x -= PLAYER_HOR_SPD;
-}
-
-void State::OnRight(Player& player)
-{
-    player.vel.x += PLAYER_HOR_SPD;
-}
-
-void State::OnUp(Player& player)
-{
-    (void)player;
-}
-
-void State::OnDown(Player& player)
-{
-    (void)player;
-}
-
-void State::OnDownReleased(Player& player)
-{
-    (void)player;
-}
-
 void State::OnHit(Player& player)
 {
     STANDING.Enter(player);
@@ -57,21 +32,46 @@ void StandingState::Enter(Player& player)
     player.state = this;
 }
 
-void StandingState::OnUp(Player& player)
+void StandingState::HandleInput(Player& player)
 {
-    JUMPING.Enter(player);
-}
-
-void StandingState::OnDown(Player& player)
-{
-    player.shape = DUCKING_SHAPE;
-    player.state = &DUCKING;
+    if (IsKeyDown(KEY_LEFT))
+    {
+        player.vel.x -= PLAYER_HOR_SPD;
+    }
+    if (IsKeyDown(KEY_RIGHT))
+    {
+        player.vel.x += PLAYER_HOR_SPD;
+    }
+    if ((IsKeyPressed(KEY_UP)))
+    {
+        JUMPING.Enter(player);
+    }
+    if ((IsKeyDown(KEY_DOWN)))
+    {
+        DUCKING.Enter(player);
+    }
+    // no IsKeyReleased(KEY_DOWN)
 }
 
 void FallingState::Enter(Player& player)
 {
     player.shape = NORMAL_SHAPE;
     player.state = this;
+}
+
+void FallingState::HandleInput(Player& player)
+{
+    if (IsKeyDown(KEY_LEFT))
+    {
+        player.vel.x -= PLAYER_HOR_SPD;
+    }
+    if (IsKeyDown(KEY_RIGHT))
+    {
+        player.vel.x += PLAYER_HOR_SPD;
+    }
+    // no IsKeyPressed(KEY_UP)
+    // no IsKeyDown(KEY_DOWN)
+    // no IsKeyReleased(KEY_DOWN)
 }
 
 void JumpingState::Enter(Player& player)
@@ -81,9 +81,22 @@ void JumpingState::Enter(Player& player)
     player.state = this;
 }
 
-void JumpingState::OnDown(Player& player)
+void JumpingState::HandleInput(Player& player)
 {
-    DIVING.Enter(player);
+    if (IsKeyDown(KEY_LEFT))
+    {
+        player.vel.x -= PLAYER_HOR_SPD;
+    }
+    if (IsKeyDown(KEY_RIGHT))
+    {
+        player.vel.x += PLAYER_HOR_SPD;
+    }
+    // no IsKeyPressed(KEY_UP)
+    if ((IsKeyDown(KEY_DOWN)))
+    {
+        DIVING.Enter(player);
+    }
+    // no IsKeyReleased(KEY_DOWN)
 }
 
 void JumpingState::OnFalling(Player& player)
@@ -97,19 +110,22 @@ void DuckingState::Enter(Player& player)
     player.state = this;
 }
 
-void DuckingState::OnLeft(Player& player)
+void DuckingState::HandleInput(Player& player)
 {
-    player.vel.x -= PLAYER_HOR_SPD_WHILE_DUCKING;
-}
-
-void DuckingState::OnRight(Player& player)
-{
-    player.vel.x += PLAYER_HOR_SPD_WHILE_DUCKING;
-}
-
-void DuckingState::OnDownReleased(Player& player)
-{
-    STANDING.Enter(player);
+    if (IsKeyDown(KEY_LEFT))
+    {
+        player.vel.x -= PLAYER_HOR_SPD_WHILE_DUCKING;
+    }
+    if (IsKeyDown(KEY_RIGHT))
+    {
+        player.vel.x += PLAYER_HOR_SPD_WHILE_DUCKING;
+    }
+    // no IsKeyPressed(KEY_UP)
+    // no IsKeyDown(KEY_DOWN)
+    if (IsKeyReleased(KEY_DOWN))
+    {
+        STANDING.Enter(player);
+    }
 }
 
 void DivingState::Enter(Player& player)
@@ -119,14 +135,14 @@ void DivingState::Enter(Player& player)
     player.state = this;
 }
 
-void DivingState::OnLeft(Player& player)
+void DivingState::HandleInput(Player& player)
 {
-    player.vel.x = 0;
-}
-
-void DivingState::OnRight(Player& player)
-{
-    player.vel.x = 0;
+    (void)player;
+    // no IsKeyDown(KEY_LEFT)
+    // no IsKeyDown(KEY_RIGHT)
+    // no IsKeyPressed(KEY_UP)
+    // no IsKeyDown(KEY_DOWN)
+    // no IsKeyReleased(KEY_DOWN)
 }
 
 void DivingState::OnFalling(Player& player)
@@ -139,24 +155,5 @@ Player::Player() : pos{SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f}, vel{0, 0}, sh
 
 void Player::HandleInput()
 {
-    if (IsKeyDown(KEY_LEFT))
-    {
-        state->OnLeft(*this);
-    }
-    if (IsKeyDown(KEY_RIGHT))
-    {
-        state->OnRight(*this);
-    }
-    if ((IsKeyPressed(KEY_UP)))
-    {
-        state->OnUp(*this);
-    }
-    if ((IsKeyDown(KEY_DOWN)))
-    {
-        state->OnDown(*this);
-    }
-    if (IsKeyReleased(KEY_DOWN))
-    {
-        state->OnDownReleased(*this);
-    }
+    state->HandleInput(*this);
 }

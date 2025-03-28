@@ -16,6 +16,45 @@ JumpingState JUMPING{};
 DivingState DIVING{};
 DuckingState DUCKING{};
 
+class BirdState : public State
+{
+public:
+    void Enter(Player& player) override
+    {
+        player.shape = NORMAL_SHAPE;
+        player.state = this;
+    }
+
+    void HandleInput(Player& player) override
+    {
+        if (IsKeyDown(KEY_LEFT))
+        {
+            player.vel.x -= PLAYER_HOR_SPD;
+        }
+        if (IsKeyDown(KEY_RIGHT))
+        {
+            player.vel.x += PLAYER_HOR_SPD;
+        }
+        if ((IsKeyPressed(KEY_SPACE)))
+        {
+            player.vel.y = PLAYER_JUMP_SPD;
+        }
+        // no IsKeyDown(KEY_UP)
+        // no IsKeyDown(KEY_DOWN)
+        // no IsKeyReleased(KEY_DOWN)
+    }
+
+    void OnHit(Player& player) override
+    {
+        (void)player;
+    }
+
+    void OnFalling(Player& player) override
+    {
+        (void)player;
+    }
+} BIRD;
+
 void State::OnHit(Player& player)
 {
     STANDING.Enter(player);
@@ -150,7 +189,7 @@ void DivingState::OnFalling(Player& player)
     (void)player;
 }
 
-Player::Player() : pos{SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f}, vel{0, 0}, shape{NORMAL_SHAPE}, state{&STANDING}
+Player::Player() : pos{SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f}, vel{0, 0}, shape{NORMAL_SHAPE}, state{&BIRD}
 {}
 
 void Player::HandleInput()

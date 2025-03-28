@@ -10,6 +10,8 @@ class State
 public:
     virtual ~State() = default;
 
+    virtual void Enter(Player& player) = 0;
+
     virtual void OnLeft(Player& player);
     virtual void OnRight(Player& player);
     virtual void OnUp(Player& player);
@@ -23,6 +25,8 @@ public:
 class StandingState : public State
 {
 public:
+    void Enter(Player& player) override;
+
     void OnUp(Player& player) override;
     void OnDown(Player& player) override;
 };
@@ -30,11 +34,14 @@ public:
 class FallingState : public State
 {
 public:
+    void Enter(Player& player) override;
 };
 
 class JumpingState : public State
 {
 public:
+    void Enter(Player& player) override;
+
     void OnDown(Player& player) override;
     void OnFalling(Player& player) override;
 };
@@ -42,6 +49,8 @@ public:
 class DuckingState : public State
 {
 public:
+    void Enter(Player& player) override;
+
     void OnLeft(Player& player) override;
     void OnRight(Player& player) override;
     void OnDownReleased(Player& player) override;
@@ -50,6 +59,8 @@ public:
 class DivingState : public State
 {
 public:
+    void Enter(Player& player) override;
+
     void OnLeft(Player& player) override;
     void OnRight(Player& player) override;
     void OnFalling(Player& player) override;

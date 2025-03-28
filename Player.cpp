@@ -43,20 +43,23 @@ void State::OnDownReleased(Player& player)
 
 void State::OnHit(Player& player)
 {
-    player.shape = NORMAL_SHAPE;
-    player.state = &STANDING;
+    STANDING.Enter(player);
 }
 
 void State::OnFalling(Player& player)
 {
-    player.state = &FALLING;
+    FALLING.Enter(player);
+}
+
+void StandingState::Enter(Player& player)
+{
+    player.shape = NORMAL_SHAPE;
+    player.state = this;
 }
 
 void StandingState::OnUp(Player& player)
 {
-    player.shape = JUMPING_SHAPE;
-    player.vel.y = PLAYER_JUMP_SPD;
-    player.state = &JUMPING;
+    JUMPING.Enter(player);
 }
 
 void StandingState::OnDown(Player& player)
@@ -65,16 +68,33 @@ void StandingState::OnDown(Player& player)
     player.state = &DUCKING;
 }
 
+void FallingState::Enter(Player& player)
+{
+    player.shape = NORMAL_SHAPE;
+    player.state = this;
+}
+
+void JumpingState::Enter(Player& player)
+{
+    player.shape = JUMPING_SHAPE;
+    player.vel.y = PLAYER_JUMP_SPD;
+    player.state = this;
+}
+
 void JumpingState::OnDown(Player& player)
 {
-    player.shape = DIVING_SHAPE;
-    player.vel.y = PLAYER_DIVING_SPD;
-    player.state = &DIVING;
+    DIVING.Enter(player);
 }
 
 void JumpingState::OnFalling(Player& player)
 {
     (void)player;
+}
+
+void DuckingState::Enter(Player& player)
+{
+    player.shape = DUCKING_SHAPE;
+    player.state = this;
 }
 
 void DuckingState::OnLeft(Player& player)
@@ -89,8 +109,14 @@ void DuckingState::OnRight(Player& player)
 
 void DuckingState::OnDownReleased(Player& player)
 {
-    player.shape = NORMAL_SHAPE;
-    player.state = &STANDING;
+    STANDING.Enter(player);
+}
+
+void DivingState::Enter(Player& player)
+{
+    player.shape = DIVING_SHAPE;
+    player.vel.y = PLAYER_DIVING_SPD;
+    player.state = this;
 }
 
 void DivingState::OnLeft(Player& player)
